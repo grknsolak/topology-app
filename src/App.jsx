@@ -33,27 +33,40 @@ const App = () => {
       const options = {
         nodes: {
           shape: 'box',
-          margin: 10,
-          font: { size: 12, color: '#fff' },
-          borderWidth: 2,
-          shadow: true
+          margin: 8,
+          font: { size: 11, color: '#24292f', face: 'Helvetica Neue' },
+          borderWidth: 1,
+          shadow: {
+            enabled: true,
+            color: 'rgba(0,0,0,0.1)',
+            size: 3,
+            x: 1,
+            y: 1
+          }
         },
         edges: {
-          font: { size: 10, align: 'middle' },
-          arrows: { to: { enabled: true } },
-          smooth: { type: 'continuous' }
+          font: { size: 9, color: '#656d76', face: 'Helvetica Neue' },
+          arrows: { to: { enabled: true, scaleFactor: 0.8 } },
+          color: { color: '#8c959f', highlight: '#0969da' },
+          width: 1,
+          smooth: { type: 'continuous', roundness: 0.2 }
         },
         groups: {
-          server: { color: { background: '#4CAF50', border: '#2E7D32' } },
-          app: { color: { background: '#2196F3', border: '#1565C0' } },
-          database: { color: { background: '#FF9800', border: '#E65100' } },
-          network: { color: { background: '#9C27B0', border: '#4A148C' } },
-          cache: { color: { background: '#F44336', border: '#B71C1C' } },
-          storage: { color: { background: '#795548', border: '#3E2723' } },
-          api: { color: { background: '#607D8B', border: '#263238' } }
+          server: { color: { background: '#dcfce7', border: '#16a34a' } },
+          app: { color: { background: '#dbeafe', border: '#2563eb' } },
+          database: { color: { background: '#fef3c7', border: '#d97706' } },
+          network: { color: { background: '#f3e8ff', border: '#9333ea' } },
+          cache: { color: { background: '#fee2e2', border: '#dc2626' } },
+          storage: { color: { background: '#f1f5f9', border: '#64748b' } },
+          api: { color: { background: '#ecfdf5', border: '#059669' } },
+          devops: { color: { background: '#ede9fe', border: '#7c3aed' } }
         },
         physics: { enabled: false },
-        interaction: { dragNodes: true, selectConnectedEdges: false }
+        interaction: { 
+          dragNodes: true, 
+          selectConnectedEdges: false,
+          hover: true
+        }
       };
 
       const net = new Network(networkRef.current, data, options);
