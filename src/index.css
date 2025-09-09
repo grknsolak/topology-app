@@ -1,0 +1,220 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+  overflow: hidden;
+}
+
+.topology-container {
+  height: 100vh;
+  display: flex;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+}
+
+.topology-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topology-toolbar {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  border-bottom: 2px solid rgba(99,102,241,.2);
+  color: white;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,.3);
+}
+
+.topology-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.topology-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+}
+
+.topology-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.3);
+}
+
+.topology-btn.add {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.topology-btn.export {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.topology-btn.import {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.topology-btn.edit {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
+.topology-btn.edit.active {
+  background: linear-gradient(135deg, #ea580c, #dc2626);
+}
+
+.topology-canvas {
+  flex: 1;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(59,130,246,.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(139,92,246,.1) 0%, transparent 50%),
+    linear-gradient(135deg, #0f172a, #1e293b);
+  border: 2px solid rgba(71,85,105,.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.topology-footer {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #334155, #475569);
+  color: rgba(255,255,255,.8);
+  font-size: 13px;
+  border-top: 1px solid rgba(71,85,105,.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topology-sidebar {
+  width: 350px;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  border-left: 2px solid rgba(71,85,105,.3);
+  box-shadow: -4px 0 12px rgba(0,0,0,.2);
+  overflow-y: auto;
+}
+
+.node-editor {
+  padding: 24px;
+  color: white;
+}
+
+.node-editor h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.editor-field {
+  margin-bottom: 20px;
+}
+
+.editor-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,.9);
+}
+
+.editor-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid rgba(71,85,105,.5);
+  background: rgba(15,23,42,.8);
+  color: white;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.editor-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96,165,250,.2);
+  outline: none;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.editor-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.editor-btn.save {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.editor-btn.delete {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.editor-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.3);
+}
+
+.selected-node-info {
+  margin-left: 16px;
+  font-size: 14px;
+  color: rgba(255,255,255,.8);
+  background: rgba(0,0,0,.2);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+@media (max-width: 768px) {
+  .topology-container {
+    flex-direction: column;
+  }
+  
+  .topology-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 2px solid rgba(71,85,105,.3);
+    max-height: 40vh;
+  }
+}
