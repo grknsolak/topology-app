@@ -137,10 +137,15 @@ body {
   background: #047857;
 }
 
-.topology-btn.connect.active {
+.topology-btn.cancel {
   background: #dc2626;
+  color: white;
   border-color: #dc2626;
-  animation: pulse 2s infinite;
+  animation: pulse 1s infinite;
+}
+
+.topology-btn.cancel:hover {
+  background: #b91c1c;
 }
 
 @keyframes pulse {
@@ -152,12 +157,22 @@ body {
   }
 }
 
+.connection-hint {
+  font-size: 10px;
+  color: #059669;
+  background: #dcfce7;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
 /* Canvas - Clean white with grid */
 .topology-canvas {
   flex: 1;
   background: #ffffff;
   position: relative;
   overflow: hidden;
+  user-select: none;
 }
 
 .topology-canvas::before {
@@ -377,6 +392,7 @@ body {
   gap: 12px;
   color: #1e40af;
   font-size: 12px;
+  transition: all 0.3s ease;
 }
 
 .selected-label {
