@@ -6,6 +6,8 @@ const App = () => {
   const [network, setNetwork] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
+  const [showServiceLibrary, setShowServiceLibrary] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [nodes, setNodes] = useState([
     { id: 1, label: 'Load Balancer\n(HAProxy)', group: 'network', x: 0, y: -200 },
@@ -79,16 +81,67 @@ const App = () => {
     }
   }, [nodes, edges]);
 
-  const addNode = () => {
+  const serviceLibrary = [
+    // Development & CI/CD
+    { name: 'GitLab', logo: '🦊', category: 'devops', color: '#FC6D26' },
+    { name: 'GitHub', logo: '🐙', category: 'devops', color: '#181717' },
+    { name: 'Jenkins', logo: '👷', category: 'devops', color: '#D33833' },
+    { name: 'Docker', logo: '🐳', category: 'devops', color: '#2496ED' },
+    { name: 'Kubernetes', logo: '☸️', category: 'network', color: '#326CE5' },
+    
+    // Databases
+    { name: 'PostgreSQL', logo: '🐘', category: 'database', color: '#336791' },
+    { name: 'MySQL', logo: '🐬', category: 'database', color: '#4479A1' },
+    { name: 'MongoDB', logo: '🍃', category: 'database', color: '#47A248' },
+    { name: 'Redis', logo: '🔴', category: 'cache', color: '#DC382D' },
+    { name: 'Elasticsearch', logo: '🔍', category: 'database', color: '#005571' },
+    
+    // Web Servers
+    { name: 'nginx', logo: '🌐', category: 'server', color: '#009639' },
+    { name: 'Apache', logo: '🪶', category: 'server', color: '#D22128' },
+    { name: 'Traefik', logo: '🚦', category: 'network', color: '#24A1C1' },
+    
+    // Cloud Services
+    { name: 'AWS S3', logo: '☁️', category: 'storage', color: '#FF9900' },
+    { name: 'AWS Lambda', logo: '⚡', category: 'app', color: '#FF9900' },
+    { name: 'AWS RDS', logo: '🗄️', category: 'database', color: '#FF9900' },
+    
+    // Monitoring
+    { name: 'Prometheus', logo: '🔥', category: 'network', color: '#E6522C' },
+    { name: 'Grafana', logo: '📊', category: 'network', color: '#F46800' },
+    { name: 'Jaeger', logo: '🔍', category: 'network', color: '#60D0E4' },
+    
+    // Message Queues
+    { name: 'RabbitMQ', logo: '🐰', category: 'network', color: '#FF6600' },
+    { name: 'Apache Kafka', logo: '📨', category: 'network', color: '#231F20' },
+    
+    // Programming Languages
+    { name: 'Node.js', logo: '💚', category: 'app', color: '#339933' },
+    { name: 'Python', logo: '🐍', category: 'app', color: '#3776AB' },
+    { name: 'Java', logo: '☕', category: 'app', color: '#007396' },
+    { name: 'Go', logo: '🐹', category: 'app', color: '#00ADD8' },
+    { name: 'PHP', logo: '🐘', category: 'app', color: '#777BB4' }
+  ];
+
+  const filteredServices = serviceLibrary.filter(service => 
+    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const addNode = (service = null) => {
     const newId = Math.max(...nodes.map(n => n.id)) + 1;
     const newNode = {
       id: newId,
-      label: `Yeni Servis ${newId}`,
-      group: 'app',
+      label: service ? `${service.logo} ${service.name}` : `Yeni Servis ${newId}`,
+      group: service ? service.category : 'app',
       x: Math.random() * 400 - 200,
       y: Math.random() * 400 - 200
     };
     setNodes([...nodes, newNode]);
+    if (service) {
+      setShowServiceLibrary(false);
+      setSearchTerm('');
+    }
   };
 
   const updateNode = (updatedNode) => {
@@ -138,36 +191,85 @@ const App = () => {
     <div className="topology-container">
       <div className="topology-main">
         <div className="topology-toolbar">
-          <h2 className="topology-title">🗺️ İnfra Topoloji Haritası</h2>
-          <button onClick={addNode} className="topology-btn add">
-            + Servis Ekle
-          </button>
-          <button onClick={exportTopology} className="topology-btn export">
-            📥 Dışa Aktar
-          </button>
-          <label className="topology-btn import">
-            📤 İçe Aktar
-            <input 
-              type="file" 
-              accept=".json" 
-              onChange={importTopology}
-              style={{ display: 'none' }}
-            />
-          </label>
-          {selectedNode && (
-            <button 
-              onClick={() => setShowEditor(!showEditor)} 
-              className={`topology-btn edit ${showEditor ? 'active' : ''}`}
-            >
-              {showEditor ? '📋 Haritayı Göster' : '✏️ Düzenle'}
-            </button>
-          )}
-          {selectedNode && (
-            <div className="selected-node-info">
-              Seçili: {selectedNode.label.replace('\n', ' ')}
+          <div className="toolbar-left">
+            <h2 className="topology-title">🗺️ İnfra Topoloji Haritası</h2>
+          </div>
+          
+          <div className="toolbar-center">
+            <div className="service-library-container">
+              <button 
+                onClick={() => setShowServiceLibrary(!showServiceLibrary)}
+                className={`topology-btn library ${showServiceLibrary ? 'active' : ''}`}
+              >
+                📚 Servis Kütüphanesi
+              </button>
+              
+              {showServiceLibrary && (
+                <div className="service-library-dropdown">
+                  <div className="service-search-container">
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="service-search-input"
+                      placeholder="🔍 Servis ara... (gitlab, docker, nginx)"
+                    />
+                  </div>
+                  <div className="service-grid-advanced">
+                    {filteredServices.map((service, index) => (
+                      <div 
+                        key={index}
+                        className="service-card"
+                        onClick={() => addNode(service)}
+                        style={{ '--service-color': service.color }}
+                      >
+                        <div className="service-icon">{service.logo}</div>
+                        <div className="service-info">
+                          <span className="service-name">{service.name}</span>
+                          <span className="service-category">{service.category}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+          
+          <div className="toolbar-right">
+            <button onClick={() => addNode()} className="topology-btn add">
+              + Manuel Ekle
+            </button>
+            <button onClick={exportTopology} className="topology-btn export">
+              📥 Dışa Aktar
+            </button>
+            <label className="topology-btn import">
+              📤 İçe Aktar
+              <input 
+                type="file" 
+                accept=".json" 
+                onChange={importTopology}
+                style={{ display: 'none' }}
+              />
+            </label>
+            {selectedNode && (
+              <button 
+                onClick={() => setShowEditor(!showEditor)} 
+                className={`topology-btn edit ${showEditor ? 'active' : ''}`}
+              >
+                {showEditor ? '📋 Harita' : '✏️ Düzenle'}
+              </button>
+            )}
+          </div>
         </div>
+        
+        {selectedNode && (
+          <div className="selected-node-bar">
+            <span className="selected-label">Seçili Node:</span>
+            <span className="selected-name">{selectedNode.label.replace('\n', ' ')}</span>
+            <span className="selected-type">{selectedNode.group}</span>
+          </div>
+        )}
         
         <div ref={networkRef} className="topology-canvas" />
         
@@ -191,50 +293,6 @@ const App = () => {
 
 const NodeEditor = ({ selectedNode, onUpdateNode, onDeleteNode }) => {
   const [nodeData, setNodeData] = useState(selectedNode);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showServiceLibrary, setShowServiceLibrary] = useState(false);
-
-  const serviceLibrary = [
-    // Development & CI/CD
-    { name: 'GitLab', logo: '🦊', category: 'DevOps', color: '#FC6D26' },
-    { name: 'GitHub', logo: '🐙', category: 'DevOps', color: '#181717' },
-    { name: 'Jenkins', logo: '👷', category: 'DevOps', color: '#D33833' },
-    { name: 'Docker', logo: '🐳', category: 'DevOps', color: '#2496ED' },
-    { name: 'Kubernetes', logo: '☸️', category: 'DevOps', color: '#326CE5' },
-    
-    // Databases
-    { name: 'PostgreSQL', logo: '🐘', category: 'Database', color: '#336791' },
-    { name: 'MySQL', logo: '🐬', category: 'Database', color: '#4479A1' },
-    { name: 'MongoDB', logo: '🍃', category: 'Database', color: '#47A248' },
-    { name: 'Redis', logo: '🔴', category: 'Cache', color: '#DC382D' },
-    { name: 'Elasticsearch', logo: '🔍', category: 'Database', color: '#005571' },
-    
-    // Web Servers
-    { name: 'nginx', logo: '🌐', category: 'Server', color: '#009639' },
-    { name: 'Apache', logo: '🪶', category: 'Server', color: '#D22128' },
-    { name: 'Traefik', logo: '🚦', category: 'Network', color: '#24A1C1' },
-    
-    // Cloud Services
-    { name: 'AWS S3', logo: '☁️', category: 'Storage', color: '#FF9900' },
-    { name: 'AWS Lambda', logo: '⚡', category: 'App', color: '#FF9900' },
-    { name: 'AWS RDS', logo: '🗄️', category: 'Database', color: '#FF9900' },
-    
-    // Monitoring
-    { name: 'Prometheus', logo: '🔥', category: 'Network', color: '#E6522C' },
-    { name: 'Grafana', logo: '📊', category: 'Network', color: '#F46800' },
-    { name: 'Jaeger', logo: '🔍', category: 'Network', color: '#60D0E4' },
-    
-    // Message Queues
-    { name: 'RabbitMQ', logo: '🐰', category: 'Network', color: '#FF6600' },
-    { name: 'Apache Kafka', logo: '📨', category: 'Network', color: '#231F20' },
-    
-    // Programming Languages
-    { name: 'Node.js', logo: '💚', category: 'App', color: '#339933' },
-    { name: 'Python', logo: '🐍', category: 'App', color: '#3776AB' },
-    { name: 'Java', logo: '☕', category: 'App', color: '#007396' },
-    { name: 'Go', logo: '🐹', category: 'App', color: '#00ADD8' },
-    { name: 'PHP', logo: '🐘', category: 'App', color: '#777BB4' }
-  ];
 
   const nodeTypes = [
     { value: 'server', label: '🖥️ Web Server' },
@@ -246,20 +304,9 @@ const NodeEditor = ({ selectedNode, onUpdateNode, onDeleteNode }) => {
     { value: 'api', label: '🔌 API Gateway' }
   ];
 
-  const filteredServices = serviceLibrary.filter(service => 
-    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const selectService = (service) => {
-    setNodeData({
-      ...nodeData, 
-      label: `${service.logo} ${service.name}`,
-      group: service.category.toLowerCase() === 'devops' ? 'network' : service.category.toLowerCase()
-    });
-    setShowServiceLibrary(false);
-    setSearchTerm('');
-  };
+  useEffect(() => {
+    setNodeData(selectedNode);
+  }, [selectedNode]);
 
   const handleSave = () => {
     if (onUpdateNode && nodeData.id) {
@@ -279,48 +326,13 @@ const NodeEditor = ({ selectedNode, onUpdateNode, onDeleteNode }) => {
       
       <div className="editor-field">
         <label className="editor-label">📝 Node Adı:</label>
-        <div style={{ position: 'relative' }}>
-          <input
-            type="text"
-            value={nodeData.label || ''}
-            onChange={(e) => setNodeData({...nodeData, label: e.target.value})}
-            className="editor-input"
-            placeholder="Örn: Web Server (nginx)"
-          />
-          <button 
-            onClick={() => setShowServiceLibrary(!showServiceLibrary)}
-            className="service-library-btn"
-            type="button"
-          >
-            📚 Servis Kütüphanesi
-          </button>
-        </div>
-        
-        {showServiceLibrary && (
-          <div className="service-library">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="service-search"
-              placeholder="🔍 Servis ara... (gitlab, docker, nginx)"
-            />
-            <div className="service-grid">
-              {filteredServices.map((service, index) => (
-                <div 
-                  key={index}
-                  className="service-item"
-                  onClick={() => selectService(service)}
-                  style={{ borderColor: service.color }}
-                >
-                  <span className="service-logo">{service.logo}</span>
-                  <span className="service-name">{service.name}</span>
-                  <span className="service-category">{service.category}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <input
+          type="text"
+          value={nodeData?.label || ''}
+          onChange={(e) => setNodeData({...nodeData, label: e.target.value})}
+          className="editor-input-clean"
+          placeholder="Örn: 🐳 Docker veya Web Server (nginx)"
+        />
       </div>
 
       <div className="editor-field">
