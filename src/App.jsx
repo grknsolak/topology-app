@@ -8,6 +8,8 @@ const App = () => {
   const [showEditor, setShowEditor] = useState(false);
   const [showServiceLibrary, setShowServiceLibrary] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [connectionMode, setConnectionMode] = useState(false);
+  const [firstSelectedNode, setFirstSelectedNode] = useState(null);
 
   const [nodes, setNodes] = useState([
     { id: 1, label: 'Load Balancer\n(HAProxy)', group: 'network', x: 0, y: -200 },
@@ -75,8 +77,26 @@ const App = () => {
         if (params.nodes.length > 0) {
           const nodeId = params.nodes[0];
           const node = nodes.find(n => n.id === nodeId);
-          setSelectedNode(node);
+          
+          if (connectionMode) {
+            if (!firstSelectedNode) {
+              setFirstSelectedNode(node);
+              setSelectedNode(node);
+            } else if (firstSelectedNode.id !== nodeId) {
+              // İki farklı node seçildi, bağlantı oluştur
+              createConnection(firstSelectedNode.id, nodeId);
+              setFirstSelectedNode(null);
+              setConnectionMode(false);
+              setSelectedNode(node);
+            }
+          } else {
+            setSelectedNode(node);
+          }
         } else {
+          if (connectionMode) {
+            setConnectionMode(false);
+            setFirstSelectedNode(null);
+          }
           setSelectedNode(null);
         }
       });
@@ -87,6 +107,12 @@ const App = () => {
           const node = nodes.find(n => n.id === nodeId);
           setSelectedNode(node);
           setShowEditor(true);
+        } else if (params.edges.length > 0) {
+          // Edge'e çift tıklandı, sil
+          const edgeId = params.edges[0];
+          if (confirm('Bağlantıyı silmek istiyor musunuz?')) {
+            setEdges(edges.filter((_, index) => index !== edgeId));
+          }
         }
       });
 
@@ -154,6 +180,31 @@ const App = () => {
     if (service) {
       setShowServiceLibrary(false);
       setSearchTerm('');
+    }
+  };
+
+  const createConnection = (fromId, toId) => {
+    // Aynı bağlantı var mı kontrol et
+    const existingEdge = edges.find(e => 
+      (e.from === fromId && e.to === toId) || 
+      (e.from === toId && e.to === fromId)
+    );
+    
+    if (!existingEdge) {
+      const newEdge = {
+        from: fromId,
+        to: toId,
+        label: 'Bağlantı'
+      };
+      setEdges([...edges, newEdge]);
+    }
+  };
+
+  const toggleConnectionMode = () => {
+    setConnectionMode(!connectionMode);
+    setFirstSelectedNode(null);
+    if (connectionMode) {
+      setSelectedNode(null);
     }
   };
 
@@ -253,6 +304,12 @@ const App = () => {
             <button onClick={() => addNode()} className="topology-btn add">
               + Manuel Ekle
             </button>
+            <button 
+              onClick={toggleConnectionMode} 
+              className={`topology-btn connect ${connectionMode ? 'active' : ''}`}
+            >
+              {connectionMode ? '🔗 Bağlantı Modu (Aktif)' : '🔗 Bağlantı Ekle'}
+            </button>
             <button onClick={exportTopology} className="topology-btn export">
               📥 Dışa Aktar
             </button>
@@ -276,11 +333,26 @@ const App = () => {
           </div>
         </div>
         
-        {selectedNode && (
+        {(selectedNode || connectionMode) && (
           <div className="selected-node-bar">
-            <span className="selected-label">Seçili Node:</span>
-            <span className="selected-name">{selectedNode.label.replace('\n', ' ')}</span>
-            <span className="selected-type">{selectedNode.group}</span>
+            {connectionMode ? (
+              <>
+                <span className="selected-label">🔗 Bağlantı Modu:</span>
+                {firstSelectedNode ? (
+                  <span className="selected-name">
+                    {firstSelectedNode.label.replace('\n', ' ')} → İkinci node'u seçin
+                  </span>
+                ) : (
+                  <span className="selected-name">İlk node'u seçin</span>
+                )}
+              </>
+            ) : selectedNode ? (
+              <>
+                <span className="selected-label">Seçili Node:</span>
+                <span className="selected-name">{selectedNode.label.replace('\n', ' ')}</span>
+                <span className="selected-type">{selectedNode.group}</span>
+              </>
+            ) : null}
           </div>
         )}
         
