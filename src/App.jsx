@@ -8,10 +8,8 @@ const App = () => {
   const [showEditor, setShowEditor] = useState(false);
   const [showServiceLibrary, setShowServiceLibrary] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState(null);
-  const [dragEnd, setDragEnd] = useState(null);
-  const [tempEdge, setTempEdge] = useState(null);
+  const [connectionMode, setConnectionMode] = useState(false);
+  const [sourceNode, setSourceNode] = useState(null);
 
   const [nodes, setNodes] = useState([
     { id: 1, label: 'Load Balancer\n(HAProxy)', group: 'network', x: 0, y: -200 },
@@ -33,8 +31,7 @@ const App = () => {
 
   useEffect(() => {
     if (networkRef.current) {
-      const edgesWithTemp = tempEdge ? [...edges, tempEdge] : edges;
-      const data = { nodes, edges: edgesWithTemp };
+      const data = { nodes, edges };
       const options = {
         nodes: {
           shape: 'box',
@@ -81,87 +78,37 @@ const App = () => {
           const nodeId = params.nodes[0];
           const node = nodes.find(n => n.id === nodeId);
           
-          if (!isDragging) {
-            // Normal seçim
+          if (!sourceNode) {
+            // İlk node seçimi - bağlantı başlat
+            setSourceNode(node);
             setSelectedNode(node);
+            setConnectionMode(true);
             
-            // Bağlantı başlat
-            const nodePosition = net.getPositions([nodeId])[nodeId];
-            setDragStart({ nodeId, position: nodePosition });
-            setIsDragging(true);
-            
-            // Mouse move listener ekle
+            // Cursor değiştir
             const canvas = net.canvas.frame.canvas;
             canvas.style.cursor = 'crosshair';
-          }
-        } else {
-          setSelectedNode(null);
-          cancelDrag();
-        }
-      });
-      
-      net.on('dragStart', (params) => {
-        if (params.nodes.length > 0 && isDragging) {
-          cancelDrag();
-        }
-      });
-      
-      // Mouse move için canvas event
-      const canvas = net.canvas.frame.canvas;
-      const handleMouseMove = (event) => {
-        if (isDragging && dragStart) {
-          const rect = canvas.getBoundingClientRect();
-          const canvasPosition = net.DOMtoCanvas({
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top
-          });
-          
-          setDragEnd(canvasPosition);
-          
-          // Geçici edge oluştur
-          setTempEdge({
-            from: dragStart.nodeId,
-            to: canvasPosition,
-            color: { color: '#ff6b6b' },
-            width: 2,
-            dashes: [5, 5]
-          });
-        }
-      };
-      
-      const handleMouseUp = (event) => {
-        if (isDragging) {
-          const rect = canvas.getBoundingClientRect();
-          const canvasPosition = net.DOMtoCanvas({
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top
-          });
-          
-          const targetNodeId = net.getNodeAt(canvasPosition);
-          
-          if (targetNodeId && targetNodeId !== dragStart.nodeId) {
-            // Bağlantı oluştur
-            createConnection(dragStart.nodeId, targetNodeId);
+          } else if (sourceNode.id !== nodeId) {
+            // İkinci node - bağlantı oluştur
+            createConnection(sourceNode.id, nodeId);
             
             // Kilitlenme efekti
+            const canvas = net.canvas.frame.canvas;
             canvas.style.cursor = 'grab';
             setTimeout(() => {
               canvas.style.cursor = 'default';
-            }, 200);
+              setConnectionMode(false);
+              setSourceNode(null);
+              setSelectedNode(node);
+            }, 300);
+          } else {
+            // Aynı node - iptal
+            cancelConnection();
           }
-          
-          cancelDrag();
+        } else {
+          // Boş alan - iptal
+          cancelConnection();
         }
-      };
-      
-      canvas.addEventListener('mousemove', handleMouseMove);
-      canvas.addEventListener('mouseup', handleMouseUp);
-      
-      // Cleanup
-      return () => {
-        canvas.removeEventListener('mousemove', handleMouseMove);
-        canvas.removeEventListener('mouseup', handleMouseUp);
-      };
+      });
 
       net.on('doubleClick', (params) => {
         if (params.nodes.length > 0) {
@@ -262,11 +209,10 @@ const App = () => {
     }
   };
 
-  const cancelDrag = () => {
-    setIsDragging(false);
-    setDragStart(null);
-    setDragEnd(null);
-    setTempEdge(null);
+  const cancelConnection = () => {
+    setConnectionMode(false);
+    setSourceNode(null);
+    setSelectedNode(null);
     
     if (network) {
       const canvas = network.canvas.frame.canvas;
@@ -370,12 +316,12 @@ const App = () => {
             <button onClick={() => addNode()} className="topology-btn add">
               + Manuel Ekle
             </button>
-            {isDragging && (
+            {connectionMode && (
               <button 
-                onClick={cancelDrag}
+                onClick={cancelConnection}
                 className="topology-btn cancel"
               >
-                ❌ İptal Et
+                ❌ Bağlantıyı İptal Et
               </button>
             )}
             <button onClick={exportTopology} className="topology-btn export">
@@ -401,13 +347,13 @@ const App = () => {
           </div>
         </div>
         
-        {(selectedNode || isDragging) && (
+        {(selectedNode || connectionMode) && (
           <div className="selected-node-bar">
-            {isDragging ? (
+            {connectionMode && sourceNode ? (
               <>
-                <span className="selected-label">🔗 Bağlantı Çiziliyor:</span>
+                <span className="selected-label">🔗 Bağlantı Modu:</span>
                 <span className="selected-name">
-                  {nodes.find(n => n.id === dragStart?.nodeId)?.label.replace('\n', ' ')} → Hedef node'a sürükleyin
+                  {sourceNode.label.replace('\n', ' ')} → Hedef node'a tıklayın
                 </span>
               </>
             ) : selectedNode ? (
@@ -415,7 +361,7 @@ const App = () => {
                 <span className="selected-label">Seçili Node:</span>
                 <span className="selected-name">{selectedNode.label.replace('\n', ' ')}</span>
                 <span className="selected-type">{selectedNode.group}</span>
-                <span className="connection-hint">💡 Bağlantı için tıklayıp sürükleyin</span>
+                <span className="connection-hint">💡 Bağlantı için tekrar tıklayın</span>
               </>
             ) : null}
           </div>
