@@ -191,6 +191,50 @@ const App = () => {
 
 const NodeEditor = ({ selectedNode, onUpdateNode, onDeleteNode }) => {
   const [nodeData, setNodeData] = useState(selectedNode);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showServiceLibrary, setShowServiceLibrary] = useState(false);
+
+  const serviceLibrary = [
+    // Development & CI/CD
+    { name: 'GitLab', logo: '🦊', category: 'DevOps', color: '#FC6D26' },
+    { name: 'GitHub', logo: '🐙', category: 'DevOps', color: '#181717' },
+    { name: 'Jenkins', logo: '👷', category: 'DevOps', color: '#D33833' },
+    { name: 'Docker', logo: '🐳', category: 'DevOps', color: '#2496ED' },
+    { name: 'Kubernetes', logo: '☸️', category: 'DevOps', color: '#326CE5' },
+    
+    // Databases
+    { name: 'PostgreSQL', logo: '🐘', category: 'Database', color: '#336791' },
+    { name: 'MySQL', logo: '🐬', category: 'Database', color: '#4479A1' },
+    { name: 'MongoDB', logo: '🍃', category: 'Database', color: '#47A248' },
+    { name: 'Redis', logo: '🔴', category: 'Cache', color: '#DC382D' },
+    { name: 'Elasticsearch', logo: '🔍', category: 'Database', color: '#005571' },
+    
+    // Web Servers
+    { name: 'nginx', logo: '🌐', category: 'Server', color: '#009639' },
+    { name: 'Apache', logo: '🪶', category: 'Server', color: '#D22128' },
+    { name: 'Traefik', logo: '🚦', category: 'Network', color: '#24A1C1' },
+    
+    // Cloud Services
+    { name: 'AWS S3', logo: '☁️', category: 'Storage', color: '#FF9900' },
+    { name: 'AWS Lambda', logo: '⚡', category: 'App', color: '#FF9900' },
+    { name: 'AWS RDS', logo: '🗄️', category: 'Database', color: '#FF9900' },
+    
+    // Monitoring
+    { name: 'Prometheus', logo: '🔥', category: 'Network', color: '#E6522C' },
+    { name: 'Grafana', logo: '📊', category: 'Network', color: '#F46800' },
+    { name: 'Jaeger', logo: '🔍', category: 'Network', color: '#60D0E4' },
+    
+    // Message Queues
+    { name: 'RabbitMQ', logo: '🐰', category: 'Network', color: '#FF6600' },
+    { name: 'Apache Kafka', logo: '📨', category: 'Network', color: '#231F20' },
+    
+    // Programming Languages
+    { name: 'Node.js', logo: '💚', category: 'App', color: '#339933' },
+    { name: 'Python', logo: '🐍', category: 'App', color: '#3776AB' },
+    { name: 'Java', logo: '☕', category: 'App', color: '#007396' },
+    { name: 'Go', logo: '🐹', category: 'App', color: '#00ADD8' },
+    { name: 'PHP', logo: '🐘', category: 'App', color: '#777BB4' }
+  ];
 
   const nodeTypes = [
     { value: 'server', label: '🖥️ Web Server' },
@@ -201,6 +245,21 @@ const NodeEditor = ({ selectedNode, onUpdateNode, onDeleteNode }) => {
     { value: 'storage', label: '💾 Storage' },
     { value: 'api', label: '🔌 API Gateway' }
   ];
+
+  const filteredServices = serviceLibrary.filter(service => 
+    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const selectService = (service) => {
+    setNodeData({
+      ...nodeData, 
+      label: `${service.logo} ${service.name}`,
+      group: service.category.toLowerCase() === 'devops' ? 'network' : service.category.toLowerCase()
+    });
+    setShowServiceLibrary(false);
+    setSearchTerm('');
+  };
 
   const handleSave = () => {
     if (onUpdateNode && nodeData.id) {
@@ -220,13 +279,48 @@ const NodeEditor = ({ selectedNode, onUpdateNode, onDeleteNode }) => {
       
       <div className="editor-field">
         <label className="editor-label">📝 Node Adı:</label>
-        <input
-          type="text"
-          value={nodeData.label || ''}
-          onChange={(e) => setNodeData({...nodeData, label: e.target.value})}
-          className="editor-input"
-          placeholder="Örn: Web Server (nginx)"
-        />
+        <div style={{ position: 'relative' }}>
+          <input
+            type="text"
+            value={nodeData.label || ''}
+            onChange={(e) => setNodeData({...nodeData, label: e.target.value})}
+            className="editor-input"
+            placeholder="Örn: Web Server (nginx)"
+          />
+          <button 
+            onClick={() => setShowServiceLibrary(!showServiceLibrary)}
+            className="service-library-btn"
+            type="button"
+          >
+            📚 Servis Kütüphanesi
+          </button>
+        </div>
+        
+        {showServiceLibrary && (
+          <div className="service-library">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="service-search"
+              placeholder="🔍 Servis ara... (gitlab, docker, nginx)"
+            />
+            <div className="service-grid">
+              {filteredServices.map((service, index) => (
+                <div 
+                  key={index}
+                  className="service-item"
+                  onClick={() => selectService(service)}
+                  style={{ borderColor: service.color }}
+                >
+                  <span className="service-logo">{service.logo}</span>
+                  <span className="service-name">{service.name}</span>
+                  <span className="service-category">{service.category}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="editor-field">

@@ -150,6 +150,7 @@ body {
 .editor-input {
   width: 100%;
   padding: 12px 16px;
+  padding-right: 140px;
   border-radius: 10px;
   border: 2px solid rgba(71,85,105,.5);
   background: rgba(15,23,42,.8);
@@ -206,6 +207,131 @@ body {
   border: 1px solid rgba(255,255,255,.1);
 }
 
+/* Service Library Styles */
+.service-library-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.service-library-btn:hover {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.service-library {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(15,23,42,.95);
+  border: 2px solid rgba(139,92,246,.3);
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 1000;
+  box-shadow: 0 8px 25px rgba(0,0,0,.4);
+  backdrop-filter: blur(12px);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.service-search {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 2px solid rgba(139,92,246,.3);
+  background: rgba(30,41,59,.8);
+  color: white;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.service-search:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.2);
+  outline: none;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(51,65,85,.6);
+  border: 2px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.service-item:hover {
+  background: rgba(139,92,246,.2);
+  border-color: currentColor;
+  transform: translateX(4px);
+}
+
+.service-logo {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+.service-name {
+  font-weight: 600;
+  color: white;
+  flex: 1;
+}
+
+.service-category {
+  font-size: 11px;
+  color: rgba(255,255,255,.6);
+  background: rgba(255,255,255,.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Scrollbar for service library */
+.service-library::-webkit-scrollbar,
+.service-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.service-library::-webkit-scrollbar-track,
+.service-grid::-webkit-scrollbar-track {
+  background: rgba(0,0,0,.2);
+  border-radius: 3px;
+}
+
+.service-library::-webkit-scrollbar-thumb,
+.service-grid::-webkit-scrollbar-thumb {
+  background: rgba(139,92,246,.5);
+  border-radius: 3px;
+}
+
+.service-library::-webkit-scrollbar-thumb:hover,
+.service-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(139,92,246,.7);
+}
+
 @media (max-width: 768px) {
   .topology-container {
     flex-direction: column;
@@ -216,5 +342,13 @@ body {
     border-left: none;
     border-top: 2px solid rgba(71,85,105,.3);
     max-height: 40vh;
+  }
+  
+  .service-library {
+    max-height: 250px;
+  }
+  
+  .service-grid {
+    max-height: 180px;
   }
 }
